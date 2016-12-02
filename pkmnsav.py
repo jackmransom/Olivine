@@ -22,6 +22,7 @@ PKMN_C_JP_PC_BOX_NAMES = 0x26E5
 PKMN_C_JP_TEAM_POKEMON_LIST = 0x281A
 PKMN_C_POKEDEX_OWNED = 0x2A27
 PKMN_C_POKEDEX_SEEN = 0x2A47
+PKMN_C_PLAYER_GENDER = 0x3E3D
 
 PKMN_C_JP_PRIMARY_PART_START = 0x2009
 PKMN_C_JP_PRIMARY_PART_END = 0x2B3A
@@ -30,6 +31,9 @@ PKMN_C_JP_SECONDARY_PART_END = 0x7D3A
 
 PKMN_C_JP_CHECKSUM_1 = 0x2D0D
 PKMN_C_JP_CHECKSUM_2 = 0x7F0D
+
+PKMN_C_PLAYER_GENDER_MALE = 0x0
+PKMN_C_PLAYER_GENDER_FEMALE = 0x1
 
 PKMN_JP_CHAR_TABLE = [ #Fill rest of this, 'f' is placeholder
   'f', 'f', 'f', 'f', 'f',
@@ -85,9 +89,11 @@ PKMN_JP_CHAR_TABLE = [ #Fill rest of this, 'f' is placeholder
   'f', 'f', 'f', 'f', 'f',
   'f']
 
-def print_checksum(data):
+def print_checksums(data):
     sum = (data[PKMN_C_JP_CHECKSUM_1] << 8) | data[PKMN_C_JP_CHECKSUM_1+1]
+    sum_b = (data[PKMN_C_JP_CHECKSUM_2] << 8) | data[PKMN_C_JP_CHECKSUM_2+1]
     print(hex(sum))
+    print(hex(sum_b))
 
 def write_checksum(data):
     sum = 0
@@ -108,25 +114,31 @@ def save_data_to_file(path, data):
         f.write(data)
 
 def print_jp_char(char):
-    print(PKMN_JP_CHAR_TABLE[char], end="")
+    print(PKMN_JP_CHAR_TABLE[char], end = "")
 
 def foo(path, data):
+    #first_pokemon = PKMN_C_JP_TEAM_POKEMON_LIST+8
+    #attack_offset = first_pokemon + 0x26 # These are 2 byte values
+    #hp_offset = first_pokemon + 0x24
+    data[PKMN_C_PLAYER_GENDER] = PKMN_C_PLAYER_GENDER_MALE
     save_data_to_file(path, data)
 
 def main():
-    path = sys.argv[1]
-    with open(path, 'rb') as f:
-        buf = bytearray(f.read())
+    if len(sys.argv) > 1:
+        path = sys.argv[1]
+        with open(path, 'rb') as f:
+            buf = bytearray(f.read())
 
-    for i in range(PKMN_GSC_TRAINER_NAME, PKMN_GSC_MOM_NAME):
-        if buf[i] != 0x50:
-            print_jp_char(buf[i])
-        else:
-            print()
-            break
+        for i in range(PKMN_GSC_TRAINER_NAME, PKMN_GSC_MOM_NAME):
+            if buf[i] != 0x50:
+                print_jp_char(buf[i])
+            else:
+                print()
+                break
 
-    print_checksum(buf)
-    #foo()
+        print_checksums(buf)
+        foo(path, buf)
+        print_checksums(buf)
 
 if __name__ == "__main__":
     main()

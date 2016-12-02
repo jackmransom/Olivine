@@ -108,7 +108,7 @@ def save_data_to_file(path, data):
         f.write(data)
 
 def print_jp_char(char):
-    print(PKMN_JP_CHAR_TABLE[char])
+    print(PKMN_JP_CHAR_TABLE[char], end="")
 
 def foo(path, data):
     save_data_to_file(path, data)
@@ -117,8 +117,14 @@ def main():
     path = sys.argv[1]
     with open(path, 'rb') as f:
         buf = bytearray(f.read())
+
     for i in range(PKMN_GSC_TRAINER_NAME, PKMN_GSC_MOM_NAME):
-        print_jp_char(buf[i])
+        if buf[i] != 0x50:
+            print_jp_char(buf[i])
+        else:
+            print()
+            break
+
     print_checksum(buf)
     #foo()
 

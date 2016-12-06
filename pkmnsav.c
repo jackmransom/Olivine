@@ -369,30 +369,25 @@ struct PokemonData {
 void printChecksums(uint8_t *data)
 {
   uint16_t sum = (data[PKMN_C_CHECKSUM_1] << 8 ) | data[PKMN_C_CHECKSUM_1+1];
-  printf("0x%X\n", sum);
+  printf("Primary: 0x%X\n", sum);
   sum = (data[PKMN_C_CHECKSUM_2] << 8) | data[PKMN_C_CHECKSUM_2+1];
-  printf("0x%X\n", sum);
+  printf("Seconday: 0x%X\n", sum);
+}
+
+uint16_t calculateCrystalChecksum(uint8_t *data, size_t size)
+{
+  uint16_t res = 0;
+  for(size_t i = 0; i < size; ++i)
+  {
+    res += data[i];
+  }
+  return res;
 }
 
 void writeChecksums(uint8_t *data)
 {
-  uint16_t sum = 0;
-  for(size_t i = PKMN_C_PRIMARY_PART_START; i < PKMN_C_PRIMARY_PART_START+PKMN_C_PART_LENGTH; ++i)
-  {
-    sum += data[i];
-  }
-
-  data[PKMN_C_CHECKSUM_1] = sum & 0xFF;
-  data[PKMN_C_CHECKSUM_1+1] = sum >> 8;
-
-  sum = 0;
-  for(size_t i = PKMN_C_SECONDARY_PART_START; i<PKMN_C_SECONDARY_PART_START+PKMN_C_PART_LENGTH; ++i)
-  {
-    sum += data[i];
-  }
-
-  data[PKMN_C_CHECKSUM_2] = sum & 0xFF;
-  data[PKMN_C_CHECKSUM_2+1] = sum >> 8;
+  *((uint16_t *) &data[PKMN_C_CHECKSUM_1]) = calculateCrystalChecksum(data+PKMN_C_PRIMARY_PART_START, PKMN_C_PART_LENGTH);
+  *((uint16_t *) &data[PKMN_C_CHECKSUM_2]) = calculateCrystalChecksum(data+PKMN_C_SECONDARY_PART_START, PKMN_C_PART_LENGTH);
 }
 
 void loadData(const char *path, struct PokemonData *pkmnData)
@@ -425,7 +420,6 @@ void foo(uint8_t *data)
   int firstPoke = PKMN_C_TEAM_POKEMON_LIST+8;
   data[PKMN_C_TEAM_POKEMON_LIST+1] = PKMN_MAREEP;
   data[firstPoke] = PKMN_MAREEP;
-  //int attackOffset = firstPoke + 0x26;
   int maxHPOffset = firstPoke + 0x24;
   data[maxHPOffset+1] = 69; //nice
   data[PKMN_C_GENDER] = PKMN_C_PLAYER_GENDER_FEMALE;

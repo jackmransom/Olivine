@@ -153,12 +153,36 @@ struct PokemonSave {
   size_t size;
 };
 
-void printChecksums(uint8_t *data)
+void encodeString(char *in, uint8_t *out, size_t length)
+{
+  size_t i= 0;
+  while(i < length)
+  {
+    for(size_t j = 0x80; j < 0xFF; ++j)
+    {
+      if(in[i] == PKMN_CHAR_TABLE[j])
+      {
+        out[i++] = j;
+      }
+    }
+  }
+}
+
+void decodeString(uint8_t *in, char *out, size_t length)
+{
+  size_t i;
+  for(i = 0; i < length; ++i)
+  {
+    printf("In: 0x%X\n", in[i]);
+    out[i] = PKMN_CHAR_TABLE[in[i]];
+  }
+  out[i+1] = '\0';
+}
+
+void printChecksum(uint8_t *data)
 {
   uint16_t sum = (data[PKMN_C_CHECKSUM_1] << 8 ) | data[PKMN_C_CHECKSUM_1+1];
-  printf("Primary: 0x%X\n", sum);
-  sum = (data[PKMN_C_CHECKSUM_2] << 8) | data[PKMN_C_CHECKSUM_2+1];
-  printf("Secondary: 0x%X\n", sum);
+  printf("Checksum: 0x%X\n", sum);
 }
 
 uint16_t calculateCrystalChecksum(uint8_t *data, const size_t size)
@@ -198,17 +222,19 @@ void saveDataToFile(const char *path, struct PokemonSave *poke)
   FILE *f = fopen(path, "wb");
   fwrite(poke->data, poke->size, 1, f);
   fclose(f);
-
 }
 
 void getCharacterName(uint8_t *data, char *name)
 {
   size_t i = 0;
-  for(size_t j = PKMN_GSC_TRAINER_NAME; data[j] != PKMN_GSC_STR_TERMINATOR; ++j)
+  size_t j = PKMN_GSC_TRAINER_NAME;
+  uint8_t *nameIn = malloc(sizeof(uint8_t)*11);
+  while(data[j] != PKMN_GSC_STR_TERMINATOR)
   {
-    name[i++] = PKMN_CHAR_TABLE[data[j]];
+    nameIn[i++] = data[j++];
   }
-  name[i] = '\0';
+  decodeString(nameIn, name, i);
+  free(nameIn);
 }
 
 struct Pokemon
@@ -239,6 +265,13 @@ struct Pokemon
   uint16_t specialDef;
 };
 
+struct Party
+{
+  uint8_t count;
+  uint8_t species[6];
+  struct Pokemon pokes[6];
+};
+
 void setPartyPokemon(uint8_t *data, struct Pokemon pokemon, int pos)
 {
   if(data[PKMN_C_TEAM_POKEMON_LIST+pos] == 0xFF)
@@ -250,17 +283,25 @@ void setPartyPokemon(uint8_t *data, struct Pokemon pokemon, int pos)
   data[PKMN_C_TEAM_POKEMON_LIST+pos] = pokemon.species;
   int offset = (PKMN_C_TEAM_POKEMON_LIST+8) + ((pos-1) * 48);
   memcpy(data+offset, &pokemon, sizeof(pokemon));
+  const uint8_t name[11] = {0x8C,0x84,0x96,0x50,0x50,0x50,0x50,0x50,0x50,0x50,0x50};
+  memcpy(data+0x29da, &name, 11);
 }
 
 struct Pokemon bar(uint8_t species)
 {
   struct Pokemon res = {0};
+  uint32_t exp = htonl(420);
   res.species = species;
   res.item = 0x52; //King's Rock
   res.moves[0] = 0x01;
   res.moves[1] = 0x5E;
   res.movePP[0] = 10;
   res.movePP[1] = 10;
+  res.atkEV = htons(64532);
+  res.defEV = htons(64532);
+  res.speedEV = htons(64532);
+  res.specialEV = htons(64532);
+  res.ivs = 0xFF;
   res.level = 5;
   res.currHP = htons(4);
   res.maxHP = htons(20);
@@ -272,9 +313,9 @@ struct Pokemon bar(uint8_t species)
   return res;
 }
 
+
 void foo(uint8_t *data)
 {
-  int firstPoke = PKMN_C_TEAM_POKEMON_LIST+8;
   //TODO: Update OT and Pokemon names or risk corrupting the game
   struct Pokemon mew = bar(PKMN_MEW);
   setPartyPokemon(data, mew, 2);
@@ -290,16 +331,11 @@ int main(int argc, char **argv)
   struct PokemonSave poke;
 
   loadData(path, &poke);
-  printChecksums(poke.data);
-  char name[11];
-  getCharacterName(poke.data, name);
-  printf("%s\n", name);
-  foo(poke.data);
-  saveDataToFile(path, &poke);
-  printChecksums(poke.data);
+  printChecksum(poke.data);
+  //foo(poke.data);
+  //saveDataToFile(path, &poke);
+  printChecksum(poke.data);
   free(poke.data);
-  printf("Wat");
-
   return 0;
 }
 

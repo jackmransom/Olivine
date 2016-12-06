@@ -1,3 +1,4 @@
+#include <arpa/inet.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -210,33 +211,73 @@ void getCharacterName(uint8_t *data, char *name)
   name[i] = '\0';
 }
 
+struct Pokemon
+{
+  uint8_t species;
+  uint8_t item;
+  uint8_t moves[4];
+  uint8_t exp[3];
+  uint16_t hpEV;
+  uint16_t atkEV;
+  uint16_t defEV;
+  uint16_t speedEV;
+  uint16_t specialEV;
+  uint16_t ivs;
+  uint8_t movePP[4];
+  uint8_t friendship;
+  uint8_t pokerus;
+  uint16_t caught;
+  uint8_t level;
+  uint8_t status;
+  uint8_t unused;
+  uint16_t currHP;
+  uint16_t maxHP;
+  uint16_t attack;
+  uint16_t defense;
+  uint16_t speed;
+  uint16_t specialAtk;
+  uint16_t specialDef;
+};
 
-
-void setPartyPokemon(uint8_t *data, uint8_t pokemon, int pos)
+void setPartyPokemon(uint8_t *data, struct Pokemon pokemon, int pos)
 {
   if(data[PKMN_C_TEAM_POKEMON_LIST+pos] == 0xFF)
   {
     data[PKMN_C_TEAM_POKEMON_LIST]++;
     data[PKMN_C_TEAM_POKEMON_LIST+(pos+1)] = 0xFF;
   }
-  printf("Setting Pokemon: %d in Position: %d\n", pokemon, pos);
-  data[PKMN_C_TEAM_POKEMON_LIST+pos] = pokemon;
-  int entry = (PKMN_C_TEAM_POKEMON_LIST+8) + ((pos-1) * 48);
-  int maxHPOffset = entry + 0x24;
-  data[entry] = pokemon;
-  data[maxHPOffset+1] = 69;
+  printf("Setting Pokemon: %d in Position: %d\n", pokemon.species, pos);
+  data[PKMN_C_TEAM_POKEMON_LIST+pos] = pokemon.species;
+  int offset = (PKMN_C_TEAM_POKEMON_LIST+8) + ((pos-1) * 48);
+  memcpy(data+offset, &pokemon, sizeof(pokemon));
+}
+
+struct Pokemon bar(uint8_t species)
+{
+  struct Pokemon res = {0};
+  res.species = species;
+  res.item = 0x52; //King's Rock
+  res.moves[0] = 0x01;
+  res.moves[1] = 0x5E;
+  res.movePP[0] = 10;
+  res.movePP[1] = 10;
+  res.level = 5;
+  res.currHP = htons(4);
+  res.maxHP = htons(20);
+  res.attack = htons(69);
+  res.defense = htons(69);
+  res.speed = htons(69);
+  res.specialAtk = htons(69);
+  res.specialDef = htons(69);
+  return res;
 }
 
 void foo(uint8_t *data)
 {
   int firstPoke = PKMN_C_TEAM_POKEMON_LIST+8;
-  int secondPoke = firstPoke+48;
-  data[PKMN_C_TEAM_POKEMON_LIST] += 1;
-  data[PKMN_C_TEAM_POKEMON_LIST+2] = data[PKMN_C_TEAM_POKEMON_LIST+1];
-  memcpy(data+secondPoke,data+firstPoke, 48);
   //TODO: Update OT and Pokemon names or risk corrupting the game
-  setPartyPokemon(data, PKMN_MAREEP, 1);
-  setPartyPokemon(data, PKMN_MEW, 2);
+  struct Pokemon mew = bar(PKMN_MEW);
+  setPartyPokemon(data, mew, 2);
 }
 
 int main(int argc, char **argv)

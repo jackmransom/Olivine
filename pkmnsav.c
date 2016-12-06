@@ -220,8 +220,11 @@ void saveDataToFile(const char *path, struct PokemonSave *poke)
   memcpy(poke->data+PKMN_C_SECONDARY_PART_START, poke->data+PKMN_C_PRIMARY_PART_START, PKMN_C_PART_LENGTH);
   writeChecksums(poke->data);
   FILE *f = fopen(path, "wb");
-  fwrite(poke->data, poke->size, 1, f);
-  fclose(f);
+  if(f)
+  {
+    fwrite(poke->data, poke->size, 1, f);
+    fclose(f);
+  }
 }
 
 void getCharacterName(uint8_t *data, char *name)

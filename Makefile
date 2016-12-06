@@ -1,5 +1,4 @@
-CC=clang
-CFLAGS=--std=c99 -Wall -Wextra -Wpedantic
+CFLAGS=--std=c99 -Wall -Wextra -Wpedantic -g
 
 pkmnsav:
 	$(CC) -o bin/$@ $(CFLAGS) $@.c

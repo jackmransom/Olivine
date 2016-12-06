@@ -51,56 +51,31 @@
 #define PKMN_GSC_STR_TERMINATOR 0x50
 
 const char PKMN_CHAR_TABLE[] = { //Incomplete
-  'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'A', 'B',
-  'C', 'D', 'E', 'F', 'G',
-  'H', 'I', 'J', 'K', 'L',
-  'M', 'N', 'O', 'P', 'Q',
-  'R', 'S', 'T', 'U', 'V',
-  'W', 'X', 'Y', 'Z', '(',
-  ')', ':', ';', '[', ']',
-  'a', 'b', 'c', 'd', 'e',
-  'f', 'g', 'h', 'i', 'j',
-  'k', 'l', 'm', 'n', 'o',
-  'p', 'q', 'r', 's', 't',
-  'u', 'v', 'w', 'x', 'y',
-  'z', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f',
+  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
+  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
+  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
+  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
+  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
+  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
+  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
+  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
+  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
+  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
+  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
+  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
+  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'A', 'B',
+  'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L',
+  'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V',
+  'W', 'X', 'Y', 'Z', '(', ')', ':', ';', '[', ']',
+  'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
+  'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
+  'u', 'v', 'w', 'x', 'y', 'z', 'f', 'f', 'f', 'f',
+  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
+  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
+  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
+  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
+  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
+  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
   'f', 'f', 'f', 'f', 'f'
 };
 
@@ -182,7 +157,7 @@ void printChecksums(uint8_t *data)
   uint16_t sum = (data[PKMN_C_CHECKSUM_1] << 8 ) | data[PKMN_C_CHECKSUM_1+1];
   printf("Primary: 0x%X\n", sum);
   sum = (data[PKMN_C_CHECKSUM_2] << 8) | data[PKMN_C_CHECKSUM_2+1];
-  printf("Seconday: 0x%X\n", sum);
+  printf("Secondary: 0x%X\n", sum);
 }
 
 uint16_t calculateCrystalChecksum(uint8_t *data, const size_t size)
@@ -225,23 +200,43 @@ void saveDataToFile(const char *path, struct PokemonSave *poke)
 
 }
 
-void printCharacterName(uint8_t *data)
+void getCharacterName(uint8_t *data, char *name)
 {
-  for(size_t i = PKMN_GSC_TRAINER_NAME; data[i] != PKMN_GSC_STR_TERMINATOR; ++i)
+  size_t i = 0;
+  for(size_t j = PKMN_GSC_TRAINER_NAME; data[j] != PKMN_GSC_STR_TERMINATOR; ++j)
   {
-    printf("%c", PKMN_CHAR_TABLE[data[i]]);
+    name[i++] = PKMN_CHAR_TABLE[data[j]];
   }
-  printf("\n");
+  name[i] = '\0';
+}
+
+
+
+void setPartyPokemon(uint8_t *data, uint8_t pokemon, int pos)
+{
+  if(data[PKMN_C_TEAM_POKEMON_LIST+pos] == 0xFF)
+  {
+    data[PKMN_C_TEAM_POKEMON_LIST]++;
+    data[PKMN_C_TEAM_POKEMON_LIST+(pos+1)] = 0xFF;
+  }
+  printf("Setting Pokemon: %d in Position: %d\n", pokemon, pos);
+  data[PKMN_C_TEAM_POKEMON_LIST+pos] = pokemon;
+  int entry = (PKMN_C_TEAM_POKEMON_LIST+8) + ((pos-1) * 48);
+  int maxHPOffset = entry + 0x24;
+  data[entry] = pokemon;
+  data[maxHPOffset+1] = 69;
 }
 
 void foo(uint8_t *data)
 {
   int firstPoke = PKMN_C_TEAM_POKEMON_LIST+8;
-  data[PKMN_C_TEAM_POKEMON_LIST+1] = PKMN_MAREEP;
-  data[firstPoke] = PKMN_MAREEP;
-  int maxHPOffset = firstPoke + 0x24;
-  data[maxHPOffset+1] = 69; //nice
-  data[PKMN_C_GENDER] = PKMN_C_PLAYER_GENDER_FEMALE;
+  int secondPoke = firstPoke+48;
+  data[PKMN_C_TEAM_POKEMON_LIST] += 1;
+  data[PKMN_C_TEAM_POKEMON_LIST+2] = data[PKMN_C_TEAM_POKEMON_LIST+1];
+  memcpy(data+secondPoke,data+firstPoke, 48);
+  //TODO: Update OT and Pokemon names or risk corrupting the game
+  setPartyPokemon(data, PKMN_MAREEP, 1);
+  setPartyPokemon(data, PKMN_MEW, 2);
 }
 
 int main(int argc, char **argv)
@@ -255,11 +250,14 @@ int main(int argc, char **argv)
 
   loadData(path, &poke);
   printChecksums(poke.data);
-  printCharacterName(poke.data);
+  char name[11];
+  getCharacterName(poke.data, name);
+  printf("%s\n", name);
   foo(poke.data);
   saveDataToFile(path, &poke);
   printChecksums(poke.data);
   free(poke.data);
+  printf("Wat");
 
   return 0;
 }

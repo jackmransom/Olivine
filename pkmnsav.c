@@ -81,7 +81,7 @@ const char PKMN_CHAR_TABLE[] = { //Incomplete
 };
 
 enum PKMN_INDEX {
-  PKMN_NULL, PKMN_BULBASAUR, PKMN_IVYSAUR, PKMN_VENUSAUR,
+  PKMN_00, PKMN_BULBASAUR, PKMN_IVYSAUR, PKMN_VENUSAUR,
   PKMN_CHARMANDER,PKMN_CHARMELEON, PKMN_CHARIZARD, PKMN_SQUIRTLE,
   PKMN_WARTORTLE, PKMN_BLASTOISE, PKMN_CATERPIE, PKMN_METAPOD,
   PKMN_BUTTERFREE, PKMN_WEEDLE, PKMN_KAKUNA, PKMN_BEEDRILL,
@@ -245,6 +245,7 @@ struct Pokemon
   uint8_t species;
   uint8_t item;
   uint8_t moves[4];
+  uint16_t ot;
   uint8_t exp[3];
   uint16_t hpEV;
   uint16_t atkEV;
@@ -266,7 +267,7 @@ struct Pokemon
   uint16_t speed;
   uint16_t specialAtk;
   uint16_t specialDef;
-};
+}__attribute__((packed));
 
 struct Party
 {
@@ -275,37 +276,46 @@ struct Party
   struct Pokemon pokes[6];
 };
 
-void setPartyPokemon(uint8_t *data, struct Pokemon pokemon, int pos)
+void setPartyPokemon(uint8_t *data, struct Pokemon pokemon, int pos, char *nickname)
 {
   if(data[PKMN_C_TEAM_POKEMON_LIST+pos] == 0xFF)
   {
     data[PKMN_C_TEAM_POKEMON_LIST]++;
     data[PKMN_C_TEAM_POKEMON_LIST+(pos+1)] = 0xFF;
   }
-  printf("Setting Pokemon: %d in Position: %d\n", pokemon.species, pos);
+  printf("Setting Pokemon: %d(%s) in Position: %d\n", pokemon.species, nickname,pos);
   data[PKMN_C_TEAM_POKEMON_LIST+pos] = pokemon.species;
   int offset = (PKMN_C_TEAM_POKEMON_LIST+8) + ((pos-1) * 48);
   memcpy(data+offset, &pokemon, sizeof(pokemon));
-  const uint8_t name[11] = {0x8C,0x84,0x96,0x50,0x50,0x50,0x50,0x50,0x50,0x50,0x50};
+
+  uint8_t name[11];
+  size_t len = strlen(nickname);
+  memset(name, PKMN_GSC_STR_TERMINATOR, 11);
+  encodeString(nickname, name, len);
   memcpy(data+0x29da, &name, 11);
 }
 
 struct Pokemon bar(uint8_t species)
 {
   struct Pokemon res = {0};
-  uint32_t exp = htonl(420);
+  uint32_t exp = 420;
+  printf("0x%X\n", exp);
   res.species = species;
   res.item = 0x52; //King's Rock
   res.moves[0] = 0x01;
   res.moves[1] = 0x5E;
-  res.movePP[0] = 10;
-  res.movePP[1] = 10;
+  res.exp[0] = (exp >> 16) & 0xFF;
+  res.exp[1] = (exp >> 8) & 0xFF;
+  res.exp[2] = exp & 0xFF;
+  printf("0x%X 0x%X 0x%X\n", res.exp[0], res.exp[1], res.exp[2]);
+  res.movePP[0] = 04;
+  res.movePP[1] = 20;
   res.atkEV = htons(64532);
   res.defEV = htons(64532);
   res.speedEV = htons(64532);
   res.specialEV = htons(64532);
   res.ivs = 0xFF;
-  res.level = 5;
+  res.level = 7;
   res.currHP = htons(4);
   res.maxHP = htons(20);
   res.attack = htons(69);
@@ -321,7 +331,7 @@ void foo(uint8_t *data)
 {
   //TODO: Update OT and Pokemon names or risk corrupting the game
   struct Pokemon mew = bar(PKMN_MEW);
-  setPartyPokemon(data, mew, 2);
+  setPartyPokemon(data, mew, 2,"PINKBOY");
 }
 
 int main(int argc, char **argv)
@@ -335,8 +345,8 @@ int main(int argc, char **argv)
 
   loadData(path, &poke);
   printChecksum(poke.data);
-  //foo(poke.data);
-  //saveDataToFile(path, &poke);
+  foo(poke.data);
+  saveDataToFile(path, &poke);
   printChecksum(poke.data);
   free(poke.data);
   return 0;

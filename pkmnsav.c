@@ -102,28 +102,27 @@ uint16_t getStatValue(uint16_t base, uint8_t level, uint16_t iv, uint16_t ev, ch
   return res;
 }
 
-void setNickname(uint8_t *data, int pos, char*nickname)
+void setName(uint8_t *data, char *name)
 {
-  uint8_t name[11];
-  size_t len = strlen(nickname);
-  memset(name, PKMN_GSC_STR_TERMINATOR, 11);
-  encodeString(nickname, name, len);
-  memcpy(data+0x29da, &name, 11);
+  uint8_t nameBuf[11];
+  size_t len = strlen(name);
+  memset(nameBuf, PKMN_GSC_STR_TERMINATOR, 11);
+  encodeString(name, nameBuf, len);
+  memcpy(data, &nameBuf, 11);
 }
 
-void setPartyPokemon(uint8_t *data, struct Pokemon pokemon, int pos, char *trainer, char *nickname)
+void setPartyPokemon(struct Party *party, struct Pokemon pokemon, int pos, char *trainer, char *nickname)
 {
-  if(data[PKMN_C_TEAM_POKEMON_LIST+pos] == 0xFF)
+  if(party->species[pos-1]== 0xFF)
   {
-    data[PKMN_C_TEAM_POKEMON_LIST]++;
-    data[PKMN_C_TEAM_POKEMON_LIST+(pos+1)] = 0xFF;
+    party->count++;
+    party->species[pos] = 0xFF;
   }
   printf("Setting Pokemon: %d(%s) in Position: %d\n", pokemon.species, nickname,pos);
-  data[PKMN_C_TEAM_POKEMON_LIST+pos] = pokemon.species;
-  int offset = (PKMN_C_TEAM_POKEMON_LIST+8) + ((pos-1) * 48);
-  memcpy(data+offset, &pokemon, sizeof(pokemon));
-  setOriginalTrainer(data, pos, trainer);
-  setNickname(data, pos, nickname);
+  party->species[pos-1] = pokemon.species;
+  memcpy(&party->pokes[pos-1], &pokemon, sizeof(pokemon));
+  setName(party->trainerNames[pos-1], trainer);
+  setName(party->pokemonNames[pos-1], nickname);
 }
 
 struct Pokemon bar(uint8_t species, uint16_t ivs, uint16_t hpEV, uint16_t atkEV, uint16_t defEV, uint16_t speedEV, uint16_t specialEV)
@@ -176,11 +175,16 @@ struct Pokemon bar(uint8_t species, uint16_t ivs, uint16_t hpEV, uint16_t atkEV,
 
 void foo(uint8_t *data)
 {
-  //TODO: Update OT and Pokemon names or risk corrupting the game
+  struct Party *test = malloc(sizeof(struct Party));
+  memcpy(test, data+PKMN_C_TEAM_POKEMON_LIST, sizeof(struct Party));
   struct Pokemon mew = bar(PKMN_MEW, 0xFAAA, 65025, 65025, 65025, 65025, 65025);
   mew.ot = (data[PKMN_GSC_TRAINER_ID+1] << 8) | (data[PKMN_GSC_TRAINER_ID]);
 
-  setPartyPokemon(data, mew, 2, "ELLIE", "LEGALBOY");
+  setName(test->pokemonNames[0], "POKEBOYS");
+  setPartyPokemon(test, mew, 2, "ELLIE", "WEWLAD");
+
+  memcpy(data+PKMN_C_TEAM_POKEMON_LIST, test, sizeof(struct Party));
+  free(test);
 }
 
 int main(int argc, char **argv)

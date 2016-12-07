@@ -180,9 +180,11 @@ struct Pokemon
 struct Party
 {
   uint8_t count;
-  uint8_t species[6];
+  uint8_t species[7];
   struct Pokemon pokes[6];
-};
+  uint8_t trainerNames[6][11];
+  uint8_t pokemonNames[6][11];
+}__attribute__((packed));
 
 void encodeString(char *in, uint8_t *out, size_t length);
 void decodeString(uint8_t *in, char *out, size_t length);
@@ -192,3 +194,4 @@ void writeChecksums(uint8_t *data);
 void loadData(const char *path, struct PokemonSave *pkmnData);
 void saveDataToFile(const char *path, struct PokemonSave *poke);
 void getCharacterName(uint8_t *data, char *name);
+void setName(uint8_t *data, char*name);

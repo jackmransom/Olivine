@@ -1,3 +1,4 @@
+#pragma once
 #include <stdint.h>
 //Save data offsets - http://bulbapedia.bulbagarden.net/wiki/Save_data_structure_in_Generation_II
 #define PKMN_GSC_OPTIONS  0x2000

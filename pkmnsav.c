@@ -1,7 +1,6 @@
 #include <arpa/inet.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
 #include <string.h>
 #include <math.h>
 #include <assert.h>
@@ -171,20 +170,6 @@ struct Pokemon bar(uint8_t species, uint16_t ivs, uint16_t hpEV, uint16_t atkEV,
   res.specialDef = htons(getStatValue(100, res.level, specialIV, specialEV, 0));
 
   return res;
-}
-
-void foo(uint8_t *data)
-{
-  struct Party *test = malloc(sizeof(struct Party));
-  memcpy(test, data+PKMN_C_TEAM_POKEMON_LIST, sizeof(struct Party));
-  struct Pokemon mew = bar(PKMN_MEW, 0xFAAA, 65025, 65025, 65025, 65025, 65025);
-  mew.ot = (data[PKMN_GSC_TRAINER_ID+1] << 8) | (data[PKMN_GSC_TRAINER_ID]);
-
-  setName(test->pokemonNames[0], "POKEBOYS");
-  setPartyPokemon(test, mew, 2, "ELLIE", "WEWLAD");
-
-  memcpy(data+PKMN_C_TEAM_POKEMON_LIST, test, sizeof(struct Party));
-  free(test);
 }
 
 int main(int argc, char **argv)

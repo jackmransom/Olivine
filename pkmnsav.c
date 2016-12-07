@@ -98,7 +98,7 @@ void getCharacterName(uint8_t *data, char *name)
 uint16_t getStatValue(uint16_t base, uint8_t level, uint16_t iv, uint16_t ev, char isHP)
 {
   uint16_t stat = floor((sqrt(ev-1)+1)/4);
-  uint16_t res = (((base + iv)* 2+ stat)*level/100)+ (isHP ? 10: 5);
+  uint16_t res = (((base + iv)* 2+ stat)*level/100)+ (isHP ? level + 10: 5);
   return res;
 }
 
@@ -111,7 +111,7 @@ void setNickname(uint8_t *data, int pos, char*nickname)
   memcpy(data+0x29da, &name, 11);
 }
 
-void setPartyPokemon(uint8_t *data, struct Pokemon pokemon, int pos, char *nickname)
+void setPartyPokemon(uint8_t *data, struct Pokemon pokemon, int pos, char *trainer, char *nickname)
 {
   if(data[PKMN_C_TEAM_POKEMON_LIST+pos] == 0xFF)
   {
@@ -122,43 +122,65 @@ void setPartyPokemon(uint8_t *data, struct Pokemon pokemon, int pos, char *nickn
   data[PKMN_C_TEAM_POKEMON_LIST+pos] = pokemon.species;
   int offset = (PKMN_C_TEAM_POKEMON_LIST+8) + ((pos-1) * 48);
   memcpy(data+offset, &pokemon, sizeof(pokemon));
+  setOriginalTrainer(data, pos, trainer);
+  setNickname(data, pos, nickname);
 }
 
-struct Pokemon bar(uint8_t species, uint16_t ivs, uint16_t atkEV, uint16_t defEV, uint16_t speedEV, uint16_t specialEV)
+struct Pokemon bar(uint8_t species, uint16_t ivs, uint16_t hpEV, uint16_t atkEV, uint16_t defEV, uint16_t speedEV, uint16_t specialEV)
 {
   struct Pokemon res = {0};
+
   uint32_t exp = 420;
+  res.level = 9;
+
   res.species = species;
   res.item = 0x52; //King's Rock
+
   res.moves[0] = 0x01;
   res.moves[1] = 0x5E;
+
   res.exp[0] = (exp >> 16) & 0xFF;
   res.exp[1] = (exp >> 8) & 0xFF;
   res.exp[2] = exp & 0xFF;
+
   res.movePP[0] = 4;
   res.movePP[1] = 20;
+
   res.ivs = htons(ivs);
+
+  res.hpEV = htons(hpEV);
   res.atkEV = htons(atkEV);
   res.defEV = htons(defEV);
   res.speedEV = htons(speedEV);
   res.specialEV = htons(specialEV);
-  res.level = 9;
-  res.currHP = htons(4);
-  res.maxHP = htons(20);
-  res.attack = htons(getStatValue(100,res.level,((ivs & 0xF000) >> 12),atkEV, 0));
-  res.defense = htons(69);
-  res.speed = htons(69);
-  res.specialAtk = htons(69);
-  res.specialDef = htons(69);
+
+  uint8_t atkIV = (ivs & 0xF000) >> 12;
+  uint8_t defIV = (ivs & 0x0F00) >> 8;
+  uint8_t speedIV = (ivs & 0x00F0) >> 4;
+  uint8_t specialIV = ivs & 0xF;
+
+  uint8_t hpIV = (((atkIV % 2 == 1 ? 8 : 0) << 3) | ((defIV % 2 == 1 ? 4 : 0) << 2) | ((speedIV % 2 == 1 ? 2 : 0) << 1) | (specialIV % 2 == 1 ? 1 : 0)) >> 3;
+  uint16_t hp = getStatValue(100, res.level, hpIV, hpEV, 1);
+
+  res.currHP = htons(hp);
+  res.maxHP = htons(hp);
+
+  res.attack = htons(getStatValue(100, res.level, atkIV, atkEV, 0));
+  res.defense = htons(getStatValue(100, res.level, defIV, defEV, 0));
+  res.speed = htons(getStatValue(100, res.level, speedIV, speedEV, 0));
+  res.specialAtk = htons(getStatValue(100, res.level, specialIV, specialEV, 0));
+  res.specialDef = htons(getStatValue(100, res.level, specialIV, specialEV, 0));
+
   return res;
 }
 
 void foo(uint8_t *data)
 {
   //TODO: Update OT and Pokemon names or risk corrupting the game
-  struct Pokemon mew = bar(PKMN_MEW, 0xFAAA, 0, 0, 0, 0);
+  struct Pokemon mew = bar(PKMN_MEW, 0xFAAA, 65025, 65025, 65025, 65025, 65025);
   mew.ot = (data[PKMN_GSC_TRAINER_ID+1] << 8) | (data[PKMN_GSC_TRAINER_ID]);
-  setPartyPokemon(data, mew, 2,"PINKBOY");
+
+  setPartyPokemon(data, mew, 2, "ELLIE", "LEGALBOY");
 }
 
 int main(int argc, char **argv)
@@ -171,10 +193,13 @@ int main(int argc, char **argv)
   struct PokemonSave poke;
 
   loadData(path, &poke);
+
   printChecksum(poke.data);
   foo(poke.data);
+
   saveDataToFile(path, &poke);
   printChecksum(poke.data);
+
   free(poke.data);
   return 0;
 }

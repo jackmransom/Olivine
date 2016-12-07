@@ -1,5 +1,5 @@
 CFLAGS = --std=c99 -Wall -Wextra -Wpedantic -lm -march=native
-DEBUGFLAGS = -O0 -D _DEBUG
+DEBUGFLAGS = -O0 -g -D _DEBUG
 RELEASEFLAGS = -O2 -D NDEBUG
 
 TARGET = pkmnsav

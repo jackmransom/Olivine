@@ -1,4 +1,10 @@
+#ifndef _MSC_VER
 #include <arpa/inet.h>
+#else
+#pragma comment(lib, "ws2_32.lib")
+#include <winsock2.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -93,9 +99,9 @@ void loadData(const char *path, struct PokemonSave *pkmnData)
     rewind(f);
     pkmnData->data = malloc(pkmnData->size);
     fread(pkmnData->data, pkmnData->size, 1, f);
-#ifdef _MSV_VER
+#ifdef _MSC_VER
     WSADATA wsaData;
-    WSAStartup(MAKEWORD(2,2) &wsaData);
+    WSAStartup(MAKEWORD(2,2), &wsaData);
 #endif
     fclose(f);
   }

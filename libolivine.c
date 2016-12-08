@@ -5,9 +5,38 @@
 #include <math.h>
 #include <assert.h>
 
-#include "pkmnsav.h"
+#include "olivine.h"
 
-void encodeString(char *in, uint8_t *out, size_t length)
+const char PKMN_CHAR_TABLE[] = { //Incomplete
+  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
+  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
+  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
+  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
+  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
+  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
+  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
+  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
+  '\0', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
+  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
+  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
+  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
+  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'A', 'B',
+  'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L',
+  'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V',
+  'W', 'X', 'Y', 'Z', '(', ')', ':', ';', '[', ']',
+  'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
+  'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
+  'u', 'v', 'w', 'x', 'y', 'z', 'f', 'f', 'f', 'f',
+  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
+  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
+  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
+  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
+  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
+  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
+  'f', 'f', 'f', 'f', 'f'
+};
+
+void encodeString(const char *in, uint8_t *out, size_t length)
 {
   size_t i= 0;
   while(i < length)
@@ -27,7 +56,6 @@ void decodeString(uint8_t *in, char *out, size_t length)
   size_t i;
   for(i = 0; i < length; ++i)
   {
-    printf("In: 0x%X\n", in[i]);
     out[i] = PKMN_CHAR_TABLE[in[i]];
   }
   out[i+1] = '\0';
@@ -69,8 +97,9 @@ void loadData(const char *path, struct PokemonSave *pkmnData)
   }
 }
 
-void saveDataToFile(const char *path, struct PokemonSave *poke)
+void saveDataToFile(const char *path, struct Party *party, struct PokemonSave *poke)
 {
+  memcpy(poke->data+PKMN_C_TEAM_POKEMON_LIST, party, PKMN_GSC_PARTY_LIST_SIZE);
   memcpy(poke->data+PKMN_C_SECONDARY_PART_START, poke->data+PKMN_C_PRIMARY_PART_START, PKMN_C_PART_LENGTH);
   writeChecksums(poke->data);
   FILE *f = fopen(path, "wb");
@@ -101,7 +130,7 @@ uint16_t getStatValue(uint16_t base, uint8_t level, uint16_t iv, uint16_t ev, ch
   return res;
 }
 
-void setName(uint8_t *data, char *name)
+void setName(uint8_t *data, const char *name)
 {
   uint8_t nameBuf[11];
   size_t len = strlen(name);
@@ -110,6 +139,15 @@ void setName(uint8_t *data, char *name)
   memcpy(data, &nameBuf, 11);
 }
 
+void getName(uint8_t *data, char *name)
+{
+  decodeString(data, name, 11);
+}
+
+uint16_t getTrainerID(struct Pokemon poke)
+{
+  return ntohs(poke.ot);
+}
 void setPartyPokemon(struct Party *party, struct Pokemon pokemon, int pos, char *trainer, char *nickname)
 {
   if(party->species[pos-1]== 0xFF)
@@ -122,6 +160,12 @@ void setPartyPokemon(struct Party *party, struct Pokemon pokemon, int pos, char 
   memcpy(&party->pokes[pos-1], &pokemon, sizeof(pokemon));
   setName(party->trainerNames[pos-1], trainer);
   setName(party->pokemonNames[pos-1], nickname);
+}
+
+uint8_t calculateHPIV(uint8_t atkIV, uint8_t defIV, uint8_t speedIV, uint8_t specialIV)
+{
+  return (((atkIV % 2 == 1 ? 8 : 0) << 3) | ((defIV % 2 == 1 ? 4 : 0) << 2) | ((speedIV % 2 == 1 ? 2 : 0) << 1) | (specialIV % 2 == 1 ? 1 : 0)) >> 3;
+
 }
 
 struct Pokemon bar(uint8_t species, uint16_t ivs, uint16_t hpEV, uint16_t atkEV, uint16_t defEV, uint16_t speedEV, uint16_t specialEV)
@@ -157,7 +201,7 @@ struct Pokemon bar(uint8_t species, uint16_t ivs, uint16_t hpEV, uint16_t atkEV,
   uint8_t speedIV = (ivs & 0x00F0) >> 4;
   uint8_t specialIV = ivs & 0xF;
 
-  uint8_t hpIV = (((atkIV % 2 == 1 ? 8 : 0) << 3) | ((defIV % 2 == 1 ? 4 : 0) << 2) | ((speedIV % 2 == 1 ? 2 : 0) << 1) | (specialIV % 2 == 1 ? 1 : 0)) >> 3;
+  uint8_t hpIV = calculateHPIV(atkIV, defIV, speedIV, specialIV);
   uint16_t hp = getStatValue(100, res.level, hpIV, hpEV, 1);
 
   res.currHP = htons(hp);
@@ -171,25 +215,3 @@ struct Pokemon bar(uint8_t species, uint16_t ivs, uint16_t hpEV, uint16_t atkEV,
 
   return res;
 }
-
-int main(int argc, char **argv)
-{
-  if(argc < 2)
-  {
-    return 1;
-  }
-  const char *path = argv[1];
-  struct PokemonSave poke;
-
-  loadData(path, &poke);
-
-  printChecksum(poke.data);
-  foo(poke.data);
-
-  saveDataToFile(path, &poke);
-  printChecksum(poke.data);
-
-  free(poke.data);
-  return 0;
-}
-

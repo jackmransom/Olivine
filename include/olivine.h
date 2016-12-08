@@ -1,5 +1,6 @@
 #pragma once
 #include <stdint.h>
+#include <stddef.h>
 //Save data offsets - http://bulbapedia.bulbagarden.net/wiki/Save_data_structure_in_Generation_II
 #define PKMN_GSC_OPTIONS  0x2000
 #define PKMN_GSC_TRAINER_ID  0x2009
@@ -47,34 +48,9 @@
 
 #define PKMN_GSC_STR_TERMINATOR 0x50
 
-const char PKMN_CHAR_TABLE[] = { //Incomplete
-  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'A', 'B',
-  'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L',
-  'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V',
-  'W', 'X', 'Y', 'Z', '(', ')', ':', ';', '[', ']',
-  'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
-  'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
-  'u', 'v', 'w', 'x', 'y', 'z', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f'
-};
+#define PKMN_GSC_TRAINER_ID_MAX 65536
+#define PKMN_GSC_PARTY_LIST_SIZE 428
+
 
 enum PKMN_INDEX {
   PKMN_00, PKMN_BULBASAUR, PKMN_IVYSAUR, PKMN_VENUSAUR,
@@ -187,12 +163,20 @@ struct Party
   uint8_t pokemonNames[6][11];
 }__attribute__((packed));
 
-void encodeString(char *in, uint8_t *out, size_t length);
+void encodeString(const char *in, uint8_t *out, size_t length);
 void decodeString(uint8_t *in, char *out, size_t length);
-void printChecksum(uint8_t *data);
+
 uint16_t calculateCrystalChecksum(uint8_t *data, const size_t size);
+void printChecksum(uint8_t *data);
 void writeChecksums(uint8_t *data);
+
 void loadData(const char *path, struct PokemonSave *pkmnData);
-void saveDataToFile(const char *path, struct PokemonSave *poke);
+void saveDataToFile(const char *path, struct Party *party, struct PokemonSave *poke);
+
 void getCharacterName(uint8_t *data, char *name);
-void setName(uint8_t *data, char*name);
+void setName(uint8_t *data, const char *name);
+void getName(uint8_t *data, char *name);
+
+uint16_t getTrainerID(struct Pokemon poke);
+
+uint8_t calculateHPIV(uint8_t atkIV, uint8_t defIV, uint8_t speedIV, uint8_t specialIV);

@@ -67,7 +67,7 @@ void printChecksum(uint8_t *data)
   printf("Checksum: 0x%X\n", sum);
 }
 
-uint16_t calculateCrystalChecksum(uint8_t *data, const size_t size)
+static uint16_t calculateCrystalChecksum(uint8_t *data, const size_t size)
 {
   uint16_t res = 0;
   for(size_t i = 0; i < size; ++i)
@@ -93,6 +93,10 @@ void loadData(const char *path, struct PokemonSave *pkmnData)
     rewind(f);
     pkmnData->data = malloc(pkmnData->size);
     fread(pkmnData->data, pkmnData->size, 1, f);
+#ifdef _MSV_VER
+    WSADATA wsaData;
+    WSAStartup(MAKEWORD(2,2) &wsaData);
+#endif
     fclose(f);
   }
 }
@@ -167,7 +171,7 @@ uint8_t calculateHPIV(uint8_t atkIV, uint8_t defIV, uint8_t speedIV, uint8_t spe
   return (((atkIV % 2 == 1 ? 8 : 0) << 3) | ((defIV % 2 == 1 ? 4 : 0) << 2) | ((speedIV % 2 == 1 ? 2 : 0) << 1) | (specialIV % 2 == 1 ? 1 : 0)) >> 3;
 
 }
-
+/*
 struct Pokemon bar(uint8_t species, uint16_t ivs, uint16_t hpEV, uint16_t atkEV, uint16_t defEV, uint16_t speedEV, uint16_t specialEV)
 {
   struct Pokemon res = {0};
@@ -214,4 +218,4 @@ struct Pokemon bar(uint8_t species, uint16_t ivs, uint16_t hpEV, uint16_t atkEV,
   res.specialDef = htons(getStatValue(100, res.level, specialIV, specialEV, 0));
 
   return res;
-}
+}*/

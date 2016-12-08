@@ -56,6 +56,7 @@ struct PokemonSave {
   size_t size;
 };
 
+#pragma pack(1)
 struct Pokemon
 {
   uint8_t species;
@@ -83,7 +84,7 @@ struct Pokemon
   uint16_t speed;
   uint16_t specialAtk;
   uint16_t specialDef;
-}__attribute__((packed));
+};
 
 struct Party
 {
@@ -92,12 +93,12 @@ struct Party
   struct Pokemon pokes[6];
   uint8_t trainerNames[6][11];
   uint8_t pokemonNames[6][11];
-}__attribute__((packed));
+};
+#pragma pack()
 
 void encodeString(const char *in, uint8_t *out, size_t length);
 void decodeString(uint8_t *in, char *out, size_t length);
 
-uint16_t calculateCrystalChecksum(uint8_t *data, const size_t size);
 void printChecksum(uint8_t *data);
 void writeChecksums(uint8_t *data);
 

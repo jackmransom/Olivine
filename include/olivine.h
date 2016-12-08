@@ -109,6 +109,6 @@ void getCharacterName(uint8_t *data, char *name);
 void setName(uint8_t *data, const char *name);
 void getName(uint8_t *data, char *name);
 
-uint16_t getTrainerID(struct Pokemon poke);
+struct Party getParty(uint8_t *data);
 
 uint8_t calculateHPIV(uint8_t atkIV, uint8_t defIV, uint8_t speedIV, uint8_t specialIV);

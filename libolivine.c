@@ -89,6 +89,23 @@ void writeChecksums(uint8_t *data)
   *((uint16_t *) &data[PKMN_C_CHECKSUM_2]) = calculateCrystalChecksum(data+PKMN_C_SECONDARY_PART_START, PKMN_C_PART_LENGTH);
 }
 
+struct Party getParty(uint8_t *data)
+{
+  struct Party res;
+  memcpy(&res, data+PKMN_C_TEAM_POKEMON_LIST, PKMN_GSC_PARTY_LIST_SIZE);
+  for(size_t i = 0; i < res.count; ++i)
+  {
+    res.pokes[i].ot = ntohs(res.pokes[i].ot);
+    res.pokes[i].ivs = ntohs(res.pokes[i].ivs);
+    res.pokes[i].hpEV = ntohs(res.pokes[i].hpEV);
+    res.pokes[i].atkEV = ntohs(res.pokes[i].atkEV);
+    res.pokes[i].defEV = ntohs(res.pokes[i].defEV);
+    res.pokes[i].speedEV = ntohs(res.pokes[i].speedEV);
+    res.pokes[i].specialEV = ntohs(res.pokes[i].specialEV);
+  }
+  return res;
+}
+
 void loadData(const char *path, struct PokemonSave *pkmnData)
 {
   FILE *f = fopen(path, "rb");
@@ -107,9 +124,24 @@ void loadData(const char *path, struct PokemonSave *pkmnData)
   }
 }
 
+void savePartyData(struct Party *party, struct PokemonSave *poke)
+{
+  for(size_t i = 0; i < party->count; ++i)
+  {
+    party->pokes[i].ot = htons(party->pokes[i].ot);
+    party->pokes[i].ivs = htons(party->pokes[i].ivs);
+    party->pokes[i].hpEV = htons(party->pokes[i].hpEV);
+    party->pokes[i].atkEV = htons(party->pokes[i].atkEV);
+    party->pokes[i].defEV = htons(party->pokes[i].defEV);
+    party->pokes[i].speedEV = htons(party->pokes[i].speedEV);
+    party->pokes[i].specialEV = htons(party->pokes[i].specialEV);
+  }
+  memcpy(poke->data+PKMN_C_TEAM_POKEMON_LIST, party, PKMN_GSC_PARTY_LIST_SIZE);
+}
+
 void saveDataToFile(const char *path, struct Party *party, struct PokemonSave *poke)
 {
-  memcpy(poke->data+PKMN_C_TEAM_POKEMON_LIST, party, PKMN_GSC_PARTY_LIST_SIZE);
+  savePartyData(party, poke);
   memcpy(poke->data+PKMN_C_SECONDARY_PART_START, poke->data+PKMN_C_PRIMARY_PART_START, PKMN_C_PART_LENGTH);
   writeChecksums(poke->data);
   FILE *f = fopen(path, "wb");
@@ -154,10 +186,6 @@ void getName(uint8_t *data, char *name)
   decodeString(data, name, 11);
 }
 
-uint16_t getTrainerID(struct Pokemon poke)
-{
-  return ntohs(poke.ot);
-}
 void setPartyPokemon(struct Party *party, struct Pokemon pokemon, int pos, char *trainer, char *nickname)
 {
   if(party->species[pos-1]== 0xFF)

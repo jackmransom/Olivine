@@ -1,6 +1,7 @@
 #pragma once
 #include <stdint.h>
 #include <stddef.h>
+#include <stdbool.h>
 //Save data offsets - http://bulbapedia.bulbagarden.net/wiki/Save_data_structure_in_Generation_II
 #define PKMN_GSC_OPTIONS  0x2000
 #define PKMN_GSC_TRAINER_ID  0x2009
@@ -111,4 +112,8 @@ void getName(uint8_t *data, char *name);
 
 struct Party getParty(uint8_t *data);
 
-uint8_t calculateHPIV(uint8_t atkIV, uint8_t defIV, uint8_t speedIV, uint8_t specialIV);
+uint8_t calculateHPIV(struct Pokemon *poke);
+void getIVs(uint8_t *res, struct Pokemon *poke);
+
+bool isPokemonShiny(struct Pokemon *poke);
+void setShiny(struct Pokemon *poke);

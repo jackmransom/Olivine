@@ -106,6 +106,50 @@ struct Party getParty(uint8_t *data)
   return res;
 }
 
+void getIVs(uint8_t *res, struct Pokemon *poke)
+{
+  uint16_t ivs = poke->ivs;
+  res[0] = ivs >>12;
+  res[1] = (ivs & 0xF00) >> 8;
+  res[2] = (ivs & 0xF0) >> 4;
+  res[3] = ivs & 0xF;
+}
+
+bool isPokemonShiny(struct Pokemon *poke)
+{
+  uint8_t ivs[4] = {0};
+  getIVs(ivs, poke);
+  uint8_t atkIV = ivs[0];
+  uint8_t defIV = ivs[1];
+  uint8_t speedIV = ivs[2];
+  uint8_t specialIV = ivs[3];
+  if(atkIV == 2 || atkIV == 3 || atkIV == 6 ||
+      atkIV == 7 || atkIV == 10 || atkIV == 11 || atkIV == 14 || atkIV == 15)
+  {
+    return defIV == 10 && speedIV == 10 && specialIV == 10;
+  } else {
+    return false;
+  }
+}
+
+void setShiny(struct Pokemon *poke)
+{
+  uint8_t ivs[4] = {0};
+  getIVs(ivs, poke);
+  uint8_t atkIV = ivs[0];
+  uint8_t defIV = 10;
+  uint8_t speedIV = 10;
+  uint8_t specialIV = 10;
+
+  if(atkIV != 2 || atkIV != 3 || atkIV != 6 ||
+      atkIV != 7 || atkIV != 10 || atkIV != 11 || atkIV != 14 || atkIV != 15)
+  {
+    atkIV = 15;
+  }
+  uint16_t newIVs = atkIV << 12 | defIV << 8 | speedIV << 4 | specialIV;
+  poke->ivs = newIVs;
+}
+
 void loadData(const char *path, struct PokemonSave *pkmnData)
 {
   FILE *f = fopen(path, "rb");
@@ -117,6 +161,7 @@ void loadData(const char *path, struct PokemonSave *pkmnData)
     pkmnData->data = malloc(pkmnData->size);
     fread(pkmnData->data, pkmnData->size, 1, f);
 #ifdef _MSC_VER
+    //TODO: Remove winsock dependency
     WSADATA wsaData;
     WSAStartup(MAKEWORD(2,2), &wsaData);
 #endif
@@ -200,8 +245,14 @@ void setPartyPokemon(struct Party *party, struct Pokemon pokemon, int pos, char 
   setName(party->pokemonNames[pos-1], nickname);
 }
 
-uint8_t calculateHPIV(uint8_t atkIV, uint8_t defIV, uint8_t speedIV, uint8_t specialIV)
+uint8_t calculateHPIV(struct Pokemon *poke)
 {
+  uint8_t ivs[4] = {0};
+  getIVs(ivs, poke);
+  uint8_t atkIV = ivs[0];
+  uint8_t defIV = ivs[1];
+  uint8_t speedIV = ivs[2];
+  uint8_t specialIV = ivs[3];
   return (((atkIV % 2 == 1 ? 8 : 0) << 3) | ((defIV % 2 == 1 ? 4 : 0) << 2) | ((speedIV % 2 == 1 ? 2 : 0) << 1) | (specialIV % 2 == 1 ? 1 : 0)) >> 3;
 
 }
@@ -226,24 +277,8 @@ struct Pokemon bar(uint8_t species, uint16_t ivs, uint16_t hpEV, uint16_t atkEV,
   res.movePP[0] = 4;
   res.movePP[1] = 20;
 
-  res.ivs = htons(ivs);
-
-  res.hpEV = htons(hpEV);
-  res.atkEV = htons(atkEV);
-  res.defEV = htons(defEV);
-  res.speedEV = htons(speedEV);
-  res.specialEV = htons(specialEV);
-
-  uint8_t atkIV = (ivs & 0xF000) >> 12;
-  uint8_t defIV = (ivs & 0x0F00) >> 8;
-  uint8_t speedIV = (ivs & 0x00F0) >> 4;
-  uint8_t specialIV = ivs & 0xF;
-
   uint8_t hpIV = calculateHPIV(atkIV, defIV, speedIV, specialIV);
   uint16_t hp = getStatValue(100, res.level, hpIV, hpEV, 1);
-
-  res.currHP = htons(hp);
-  res.maxHP = htons(hp);
 
   res.attack = htons(getStatValue(100, res.level, atkIV, atkEV, 0));
   res.defense = htons(getStatValue(100, res.level, defIV, defEV, 0));

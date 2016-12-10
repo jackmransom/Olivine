@@ -217,6 +217,11 @@ uint16_t getStatValue(uint16_t base, uint8_t level, uint16_t iv, uint16_t ev, ch
   return res;
 }
 
+void setHeldItem(uint8_t item, struct Pokemon *poke)
+{
+  poke->item = item;
+}
+
 void setName(uint8_t *data, const char *name)
 {
   uint8_t nameBuf[11];
@@ -276,15 +281,6 @@ struct Pokemon bar(uint8_t species, uint16_t ivs, uint16_t hpEV, uint16_t atkEV,
 
   res.movePP[0] = 4;
   res.movePP[1] = 20;
-
-  uint8_t hpIV = calculateHPIV(atkIV, defIV, speedIV, specialIV);
-  uint16_t hp = getStatValue(100, res.level, hpIV, hpEV, 1);
-
-  res.attack = htons(getStatValue(100, res.level, atkIV, atkEV, 0));
-  res.defense = htons(getStatValue(100, res.level, defIV, defEV, 0));
-  res.speed = htons(getStatValue(100, res.level, speedIV, speedEV, 0));
-  res.specialAtk = htons(getStatValue(100, res.level, specialIV, specialEV, 0));
-  res.specialDef = htons(getStatValue(100, res.level, specialIV, specialEV, 0));
 
   return res;
 }*/

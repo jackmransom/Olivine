@@ -114,6 +114,10 @@ struct Party getParty(uint8_t *data);
 
 uint8_t calculateHPIV(struct Pokemon *poke);
 void getIVs(uint8_t *res, struct Pokemon *poke);
-
 bool isPokemonShiny(struct Pokemon *poke);
 void setShiny(struct Pokemon *poke);
+
+
+uint16_t getStatValue(uint16_t base, uint8_t level, uint16_t iv, uint16_t ev, char isHP);
+
+void setHeldItem(uint8_t item, struct Pokemon *poke);

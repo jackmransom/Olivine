@@ -132,6 +132,13 @@ bool isPokemonShiny(struct Pokemon *poke)
   }
 }
 
+void setIVs(struct Pokemon *poke, uint8_t atkIV, uint8_t defIV, uint8_t speedIV, uint8_t specialIV)
+{
+  uint16_t newIVs = atkIV << 12 | defIV << 8 | speedIV << 4 | specialIV;
+  poke->ivs = newIVs;
+}
+
+
 void setShiny(struct Pokemon *poke)
 {
   uint8_t ivs[4] = {0};
@@ -146,8 +153,7 @@ void setShiny(struct Pokemon *poke)
   {
     atkIV = 15;
   }
-  uint16_t newIVs = atkIV << 12 | defIV << 8 | speedIV << 4 | specialIV;
-  poke->ivs = newIVs;
+  setIVs(poke, atkIV, defIV, speedIV, specialIV);
 }
 
 void loadData(const char *path, struct PokemonSave *pkmnData)
@@ -270,7 +276,6 @@ struct Pokemon bar(uint8_t species, uint16_t ivs, uint16_t hpEV, uint16_t atkEV,
   res.level = 9;
 
   res.species = species;
-  res.item = 0x52; //King's Rock
 
   res.moves[0] = 0x01;
   res.moves[1] = 0x5E;

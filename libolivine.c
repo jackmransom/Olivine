@@ -175,6 +175,15 @@ void loadData(const char *path, struct PokemonSave *pkmnData)
   }
 }
 
+void freeData(struct PokemonSave *pkmnData)
+{
+  free(pkmnData->data);
+#ifdef _MSC_VER
+  //TODO: Remove winsock dependency
+  WSACleanup();
+#endif
+}
+
 void savePartyData(struct Party *party, struct PokemonSave *poke)
 {
   for(size_t i = 0; i < party->count; ++i)

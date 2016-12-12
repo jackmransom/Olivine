@@ -1,7 +1,7 @@
 #pragma once
 #include <stdint.h>
-#include <stddef.h>
 #include <stdbool.h>
+
 //Save data offsets - http://bulbapedia.bulbagarden.net/wiki/Save_data_structure_in_Generation_II
 #define PKMN_GSC_OPTIONS  0x2000
 #define PKMN_GSC_TRAINER_ID  0x2009
@@ -37,20 +37,24 @@
 #define PKMN_C_JP_SECONDARY_PART_END  0x7D3A
 #define PKMN_C_JP_SECONDARY_PART_END  0x7D3A
 
-#define PKMN_C_PART_LENGTH  0xB79
-#define PKMN_C_JP_PART_LENGTH  0xB31
 
 #define PKMN_C_CHECKSUM_1  0x2D0D
 #define PKMN_C_CHECKSUM_2  0x1F0D
 #define PKMN_C_JP_CHECKSUM_2  0x7F0D
 
+//Sizes
+#define PKMN_GSC_TRAINER_ID_MAX 65536
+#define PKMN_GSC_PARTY_LIST_SIZE 428
+
+#define PKMN_C_PART_LENGTH  0xB79
+#define PKMN_C_JP_PART_LENGTH  0xB31
+
+//Misc defines
 #define PKMN_C_PLAYER_GENDER_MALE  0x0
 #define PKMN_C_PLAYER_GENDER_FEMALE  0x1
 
 #define PKMN_GSC_STR_TERMINATOR 0x50
 
-#define PKMN_GSC_TRAINER_ID_MAX 65536
-#define PKMN_GSC_PARTY_LIST_SIZE 428
 
 struct PokemonSave {
   uint8_t *data;
@@ -104,6 +108,7 @@ void printChecksum(uint8_t *data);
 void writeChecksums(uint8_t *data);
 
 void loadData(const char *path, struct PokemonSave *pkmnData);
+void freeData(struct PokemonSave *pkmnData);
 void saveDataToFile(const char *path, struct Party *party, struct PokemonSave *poke);
 
 void getCharacterName(uint8_t *data, char *name);

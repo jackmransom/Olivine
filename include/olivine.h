@@ -1,7 +1,9 @@
 #pragma once
 #include <stdint.h>
 #include <stdbool.h>
-
+#ifdef __cplusplus
+extern "C" {
+#endif
 //Save data offsets - http://bulbapedia.bulbagarden.net/wiki/Save_data_structure_in_Generation_II
 #define PKMN_GSC_OPTIONS  0x2000
 #define PKMN_GSC_TRAINER_ID  0x2009
@@ -129,3 +131,7 @@ uint16_t getStatValue(uint16_t base, uint8_t level, uint16_t iv, uint16_t ev, ch
 void setHeldItem(uint8_t item, struct Pokemon *poke);
 
 void setMove(uint8_t move, int pos, struct Pokemon *poke);
+
+#ifdef __cplusplus
+}
+#endif

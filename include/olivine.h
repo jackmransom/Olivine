@@ -117,7 +117,7 @@ void getCharacterName(uint8_t *data, char *name);
 void setName(uint8_t *data, const char *name);
 void getName(uint8_t *data, char *name);
 
-struct Party getParty(uint8_t *data);
+struct Party *getParty(uint8_t *data);
 
 uint8_t calculateHPIV(struct Pokemon *poke);
 void getIVs(uint8_t *res, struct Pokemon *poke);

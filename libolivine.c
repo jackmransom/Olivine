@@ -238,6 +238,11 @@ void setHeldItem(uint8_t item, struct Pokemon *poke)
   poke->item = item;
 }
 
+void setMove(uint8_t move, int pos, struct Pokemon *poke)
+{
+  poke->moves[pos] = move;
+}
+
 void setName(uint8_t *data, const char *name)
 {
   uint8_t nameBuf[11];

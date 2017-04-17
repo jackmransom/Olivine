@@ -57,7 +57,7 @@ void encodeString(const char *in, uint8_t *out, size_t length)
   }
 }
 
-void decodeString(uint8_t *in, char *out, size_t length)
+void decodeString(const uint8_t *in, char *out, size_t length)
 {
   size_t i;
   for(i = 0; i < length; ++i)
@@ -67,13 +67,13 @@ void decodeString(uint8_t *in, char *out, size_t length)
   out[i+1] = '\0';
 }
 
-void printChecksum(uint8_t *data)
+void printChecksum(const uint8_t *data)
 {
   uint16_t sum = (data[PKMN_C_CHECKSUM_1] << 8 ) | data[PKMN_C_CHECKSUM_1+1];
   printf("Checksum: 0x%X\n", sum);
 }
 
-static uint16_t calculateCrystalChecksum(uint8_t *data, const size_t size)
+static uint16_t calculateCrystalChecksum(const uint8_t *data, size_t size)
 {
   uint16_t res = 0;
   for(size_t i = 0; i < size; ++i)
@@ -106,7 +106,7 @@ struct Party *getParty(uint8_t *data)
   return res;
 }
 
-void getIVs(uint8_t *res, struct Pokemon *poke)
+void getIVs(uint8_t *res, const struct Pokemon *poke)
 {
   uint16_t ivs = poke->ivs;
   res[0] = ivs >>12;
@@ -115,7 +115,7 @@ void getIVs(uint8_t *res, struct Pokemon *poke)
   res[3] = ivs & 0xF;
 }
 
-bool isPokemonShiny(struct Pokemon *poke)
+bool isPokemonShiny(const struct Pokemon *poke)
 {
   uint8_t ivs[4] = {0};
   getIVs(ivs, poke);
@@ -184,7 +184,7 @@ void freeData(struct PokemonSave *pkmnData)
 #endif
 }
 
-void savePartyData(struct Party *party, struct PokemonSave *poke)
+void savePartyData(struct Party *party, struct PokemonSave *poke) //TODO: Rename?
 {
   for(size_t i = 0; i < party->count; ++i)
   {
@@ -257,7 +257,7 @@ void getName(uint8_t *data, char *name)
   decodeString(data, name, 11);
 }
 
-void setPartyPokemon(struct Party *party, struct Pokemon pokemon, int pos, char *trainer, char *nickname)
+void setPartyPokemon(struct Party *party, struct Pokemon pokemon, int pos, const char *trainer, const char *nickname)
 {
   if(party->species[pos-1]== 0xFF)
   {
@@ -273,34 +273,35 @@ void setPartyPokemon(struct Party *party, struct Pokemon pokemon, int pos, char 
 
 uint8_t calculateHPIV(struct Pokemon *poke)
 {
+  uint8_t res = 0;
+  
   uint8_t ivs[4] = {0};
   getIVs(ivs, poke);
+  
   uint8_t atkIV = ivs[0];
   uint8_t defIV = ivs[1];
   uint8_t speedIV = ivs[2];
   uint8_t specialIV = ivs[3];
-  return (((atkIV % 2 == 1 ? 8 : 0) << 3) | ((defIV % 2 == 1 ? 4 : 0) << 2) | ((speedIV % 2 == 1 ? 2 : 0) << 1) | (specialIV % 2 == 1 ? 1 : 0)) >> 3;
 
-}
-/*
-struct Pokemon bar(uint8_t species, uint16_t ivs, uint16_t hpEV, uint16_t atkEV, uint16_t defEV, uint16_t speedEV, uint16_t specialEV)
-{
-  struct Pokemon res = {0};
-
-  uint32_t exp = 420;
-  res.level = 9;
-
-  res.species = species;
-
-  res.moves[0] = 0x01;
-  res.moves[1] = 0x5E;
-
-  res.exp[0] = (exp >> 16) & 0xFF;
-  res.exp[1] = (exp >> 8) & 0xFF;
-  res.exp[2] = exp & 0xFF;
-
-  res.movePP[0] = 4;
-  res.movePP[1] = 20;
-
+  if(atkIV % 2 != 0)
+  {
+    res += 8;
+  }
+  
+  if(defIV % 2 != 0)
+  {
+    res += 4;
+  }
+  
+  if(speedIV % 2 != 0)
+  {
+    res += 2;
+  }
+  
+  if(specialIV % 2 != 0)
+  {
+    res += 1;
+  }
+  
   return res;
-}*/
+}

@@ -104,9 +104,9 @@ struct Party
 #pragma pack()
 
 void encodeString(const char *in, uint8_t *out, size_t length);
-void decodeString(uint8_t *in, char *out, size_t length);
+void decodeString(const uint8_t *in, char *out, size_t length);
 
-void printChecksum(uint8_t *data);
+void printChecksum(const uint8_t *data);
 void writeChecksums(uint8_t *data);
 
 void loadData(const char *path, struct PokemonSave *pkmnData);
@@ -120,8 +120,8 @@ void getName(uint8_t *data, char *name);
 struct Party *getParty(uint8_t *data);
 
 uint8_t calculateHPIV(struct Pokemon *poke);
-void getIVs(uint8_t *res, struct Pokemon *poke);
-bool isPokemonShiny(struct Pokemon *poke);
+void getIVs(uint8_t *res, const struct Pokemon *poke);
+bool isPokemonShiny(const struct Pokemon *poke);
 void setShiny(struct Pokemon *poke);
 
 void setIVs(struct Pokemon *poke, uint8_t atkIV, uint8_t defIV, uint8_t speedIV, uint8_t specialIV);

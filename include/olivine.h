@@ -126,7 +126,7 @@ void setShiny(struct Pokemon *poke);
 
 void setIVs(struct Pokemon *poke, uint8_t atkIV, uint8_t defIV, uint8_t speedIV, uint8_t specialIV);
 
-uint16_t getStatValue(uint16_t base, uint8_t level, uint16_t iv, uint16_t ev, char isHP);
+uint16_t getStatValue(uint16_t base, uint8_t level, uint16_t iv, uint16_t ev, bool isHP);
 
 void setHeldItem(uint8_t item, struct Pokemon *poke);
 

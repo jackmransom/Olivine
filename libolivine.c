@@ -44,6 +44,7 @@ const char PKMN_CHAR_TABLE[] = { //Incomplete
 
 void encodeString(const char *in, uint8_t *out, size_t length)
 {
+  //TODO: Handle spaces
   size_t i= 0;
   while(i < length)
   {
@@ -226,7 +227,7 @@ void getCharacterName(uint8_t *data, char *name)
   free(nameIn);
 }
 
-uint16_t getStatValue(uint16_t base, uint8_t level, uint16_t iv, uint16_t ev, char isHP)
+uint16_t getStatValue(uint16_t base, uint8_t level, uint16_t iv, uint16_t ev, bool isHP)
 {
   uint16_t stat = floor((sqrt(ev-1)+1)/4);
   uint16_t res = (((base + iv)* 2+ stat)*level/100)+ (isHP ? level + 10: 5);

@@ -113,7 +113,7 @@ void loadData(const char *path, struct PokemonSave *pkmnData);
 void freeData(struct PokemonSave *pkmnData);
 void saveDataToFile(const char *path, struct Party *party, struct PokemonSave *poke);
 
-void getCharacterName(uint8_t *data, char *name);
+void getPlayerName(uint8_t *data, char *name);
 void setName(uint8_t *data, const char *name);
 void getName(uint8_t *data, char *name);
 

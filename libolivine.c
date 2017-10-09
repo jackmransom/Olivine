@@ -214,17 +214,9 @@ void saveDataToFile(const char *path, struct Party *party, struct PokemonSave *p
   }
 }
 
-void getCharacterName(uint8_t *data, char *name)
+void getPlayerName(uint8_t *data, char *name)
 {
-  size_t i = 0;
-  size_t j = PKMN_GSC_TRAINER_NAME;
-  uint8_t *nameIn = malloc(sizeof(uint8_t)*11);
-  while(data[j] != PKMN_GSC_STR_TERMINATOR)
-  {
-    nameIn[i++] = data[j++];
-  }
-  decodeString(nameIn, name, i);
-  free(nameIn);
+  getName(data+PKMN_GSC_TRAINER_NAME, name);
 }
 
 uint16_t getStatValue(uint16_t base, uint8_t level, uint16_t iv, uint16_t ev, bool isHP)

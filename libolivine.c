@@ -26,7 +26,7 @@ const char PKMN_CHAR_TABLE[] = { //Incomplete
   'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
   'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
   'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f',
-  'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'A', 'B',
+  'f', 'f', 'f', 'f', 'f', 'f', 'f', ' ', 'A', 'B',
   'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L',
   'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V',
   'W', 'X', 'Y', 'Z', '(', ')', ':', ';', '[', ']',
@@ -44,11 +44,10 @@ const char PKMN_CHAR_TABLE[] = { //Incomplete
 
 void encodeString(const char *in, uint8_t *out, size_t length)
 {
-  //TODO: Handle spaces
   size_t i= 0;
   while(i < length)
   {
-    for(size_t j = 0x80; j < 0xFF; ++j)
+    for(size_t j = 0x79; j < 0xFF; ++j)
     {
       if(in[i] == PKMN_CHAR_TABLE[j])
       {

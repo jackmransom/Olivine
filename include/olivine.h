@@ -132,6 +132,8 @@ void setHeldItem(uint8_t item, struct Pokemon *poke);
 
 void setMove(uint8_t move, int pos, struct Pokemon *poke);
 
+void setPartyPokemon(struct Party *party, struct Pokemon pokemon, int pos, const char *trainer, const char *nickname);
+
 #ifdef __cplusplus
 }
 #endif

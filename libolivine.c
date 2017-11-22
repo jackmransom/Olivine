@@ -60,12 +60,13 @@ void encodeString(const char *in, uint8_t *out, size_t length)
 
 void decodeString(const uint8_t *in, char *out, size_t length)
 {
-  size_t i;
-  for(i = 0; i < length; ++i)
+  size_t i = 0;
+  while(PKMN_CHAR_TABLE[in[i]] != '\0')
   {
     out[i] = PKMN_CHAR_TABLE[in[i]];
+    ++i;
   }
-  out[i+1] = '\0';
+  out[i] = '\0';
 }
 
 void printChecksum(const uint8_t *data)
@@ -245,6 +246,14 @@ void setName(uint8_t *data, const char *name)
   memcpy(data, &nameBuf, 11);
 }
 
+void setPlayerName(uint8_t *data, const char *name)
+{
+  uint8_t nameBuf[11];
+  size_t len = strlen(name);
+  memset(nameBuf, PKMN_GSC_STR_TERMINATOR, 11);
+  encodeString(name, nameBuf, len);
+  memcpy(data, &nameBuf, 11);
+}
 void getName(uint8_t *data, char *name)
 {
   decodeString(data, name, 11);

@@ -10,9 +10,11 @@ LIBDIR = $(CURDIR)/lib
 all: $(TARGET)
 
 $(TARGET):
+	mkdir $(LIBDIR)
 	$(CC) $(CFLAGS) $(DEBUGFLAGS) -o $(LIBDIR)/$@.so $(TARGET).c
 
 release:
+	mkdir $(LIBDIR)
 	$(CC) $(CFLAGS) $(RELEASEFLAGS) -o $(LIBDIR)/$(TARGET).so $(TARGET).c
 
 .PHONY: clean

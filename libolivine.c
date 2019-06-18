@@ -1,10 +1,3 @@
-#ifndef _MSC_VER
-#include <arpa/inet.h>
-#else
-#pragma comment(lib, "ws2_32.lib")
-#include <winsock2.h>
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -41,6 +34,14 @@ const char PKMN_CHAR_TABLE[] = { //Incomplete
   'f', 'f', 'f', 'f', 'f', '0', '1', '2', '3', '4',
   '5', '6', '7', '8', '9'
 };
+
+uint16_t leToBe16(uint16_t val) {
+  return val >> 8 | (val & 0xFF) << 8;
+}
+
+uint16_t beToLe16(uint16_t val) {
+  return leToBe16(val);
+}
 
 void encodeString(const char *in, uint8_t *out, size_t length)
 {
@@ -93,16 +94,15 @@ void writeChecksums(uint8_t *data)
 struct Party *getParty(uint8_t *data)
 {
   struct Party *res = (struct Party *)&data[PKMN_C_TEAM_POKEMON_LIST];
-  //memcpy(&res, data+PKMN_C_TEAM_POKEMON_LIST, PKMN_GSC_PARTY_LIST_SIZE);
   for(size_t i = 0; i < res->count; ++i)
   {
-    res->pokes[i].ot = ntohs(res->pokes[i].ot);
-    res->pokes[i].ivs = ntohs(res->pokes[i].ivs);
-    res->pokes[i].hpEV = ntohs(res->pokes[i].hpEV);
-    res->pokes[i].atkEV = ntohs(res->pokes[i].atkEV);
-    res->pokes[i].defEV = ntohs(res->pokes[i].defEV);
-    res->pokes[i].speedEV = ntohs(res->pokes[i].speedEV);
-    res->pokes[i].specialEV = ntohs(res->pokes[i].specialEV);
+    res->pokes[i].ot = beToLe16(res->pokes[i].ot);
+    res->pokes[i].ivs = beToLe16(res->pokes[i].ivs);
+    res->pokes[i].hpEV = beToLe16(res->pokes[i].hpEV);
+    res->pokes[i].atkEV = beToLe16(res->pokes[i].atkEV);
+    res->pokes[i].defEV = beToLe16(res->pokes[i].defEV);
+    res->pokes[i].speedEV = beToLe16(res->pokes[i].speedEV);
+    res->pokes[i].specialEV = beToLe16(res->pokes[i].specialEV);
   }
   return res;
 }
@@ -167,11 +167,6 @@ void loadData(const char *path, struct PokemonSave *pkmnData)
     rewind(f);
     pkmnData->data = malloc(pkmnData->size);
     fread(pkmnData->data, pkmnData->size, 1, f);
-#ifdef _MSC_VER
-    //TODO: Remove winsock dependency
-    WSADATA wsaData;
-    WSAStartup(MAKEWORD(2,2), &wsaData);
-#endif
     fclose(f);
   }
 }
@@ -179,25 +174,20 @@ void loadData(const char *path, struct PokemonSave *pkmnData)
 void freeData(struct PokemonSave *pkmnData)
 {
   free(pkmnData->data);
-#ifdef _MSC_VER
-  //TODO: Remove winsock dependency
-  WSACleanup();
-#endif
 }
 
 void savePartyData(struct Party *party, struct PokemonSave *poke) //TODO: Rename?
 {
   for(size_t i = 0; i < party->count; ++i)
   {
-    party->pokes[i].ot = htons(party->pokes[i].ot);
-    party->pokes[i].ivs = htons(party->pokes[i].ivs);
-    party->pokes[i].hpEV = htons(party->pokes[i].hpEV);
-    party->pokes[i].atkEV = htons(party->pokes[i].atkEV);
-    party->pokes[i].defEV = htons(party->pokes[i].defEV);
-    party->pokes[i].speedEV = htons(party->pokes[i].speedEV);
-    party->pokes[i].specialEV = htons(party->pokes[i].specialEV);
+    party->pokes[i].ot = leToBe16(party->pokes[i].ot);
+    party->pokes[i].ivs = leToBe16(party->pokes[i].ivs);
+    party->pokes[i].hpEV = leToBe16(party->pokes[i].hpEV);
+    party->pokes[i].atkEV = leToBe16(party->pokes[i].atkEV);
+    party->pokes[i].defEV = leToBe16(party->pokes[i].defEV);
+    party->pokes[i].speedEV = leToBe16(party->pokes[i].speedEV);
+    party->pokes[i].specialEV = leToBe16(party->pokes[i].specialEV);
   }
-  //memcpy(poke->data+PKMN_C_TEAM_POKEMON_LIST, party, PKMN_GSC_PARTY_LIST_SIZE);
 
 }
 
